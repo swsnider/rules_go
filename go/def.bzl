@@ -241,10 +241,15 @@ def go_library_impl(ctx):
   if hasattr(ctx.attr, "cgo_object"):
     cgo_object = ctx.attr.cgo_object
 
+  transitive_libs = set()
+
   if ctx.attr.library:
     go_srcs += ctx.attr.library.go_sources
     asm_srcs += ctx.attr.library.asm_sources
-    deps += ctx.attr.library.direct_deps
+    if hasattr(ctx.attr.library, "direct_deps"):
+      deps += ctx.attr.library.direct_deps
+    if hasattr(ctx.attr.library, "transitive_go_library_object"):
+      transitive_libs += ctx.attr.library.transitive_go_library_object
     if ctx.attr.library.cgo_object:
       if cgo_object:
         fail("go_library %s cannot have cgo_object because the package " +
@@ -269,7 +274,7 @@ def go_library_impl(ctx):
   emit_go_compile_action(ctx, go_srcs, deps, out_lib,
                          extra_objects=extra_objects)
 
-  transitive_libs = set([out_lib])
+  transitive_libs += set([out_lib])
   transitive_importmap = {out_lib.path: _go_importpath(ctx)}
   for dep in ctx.attr.deps:
      transitive_libs += dep.transitive_go_library_object
