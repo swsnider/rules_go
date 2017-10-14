@@ -163,6 +163,7 @@ def go_toolchain(name, target, host=None, constraints=[], **kwargs):
       goarch = goarch,
       bootstrap = False,
       tags = ["manual"],
+      visibility = ["//visibility:public"],
       **kwargs
   )
   native.toolchain(
